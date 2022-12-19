@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Prueba de convenio</title>
+</head>
+<body>
+<hr>
+<center>
+    <h1>Convenio # {{ .NumeroConvenio }}</h1>
+</center>
+<hr>
+    <table class="default">
+        <tr>
+            <td><b>Nombre de la institución: </b></td>
+            <td>{{ .Convenio.NombreInstitucion }}</td>
+        </tr>
+        <tr>
+            <td><b>Nombre del convenio: </b></td>
+            <td>{{ .Convenio.NombreConvenio }}</td>
+        </tr>
+        <tr>
+            <td><b>Objeto del convenio: </b></td>
+            <td>{{ .Convenio.ObjetoConvenio }}</td>
+        </tr>
+        <tr>
+            <td><b>Tipologia del convenio: </b></td>
+            <td>{{ .Convenio.TipologiaConvenio }}</td>
+        </tr>
+        <tr>
+            <td><b>Modalidad del convenio: </b></td>
+            <td>{{ .Convenio.ModalidadConvenio }}</td>
+        </tr>
+        <tr>
+            <td><b>Beneficiarios: </b></td>
+            <td>{{ .Convenio.Beneficiarios }}</td>
+        </tr>
+        <tr>
+            <td><b>Caracterización: </b></td>
+            <td>{{ .Convenio.Caracterizacion }}</td>
+        </tr>
+    </table>
+<hr>
+<center>
+<h1>InfoGestor</h1>
+</center>
+<hr>
+<table class="default">
+    <tr>
+        <td><b>Nombre del Responsable: </b></td>
+        <td>{{ .Convenio.InfoGestor.NombreResponsable }}</td>
+    </tr>
+    <tr>
+        <td><b>Fecha: </b></td>
+        <td>{{ .Convenio.InfoGestor.Fecha }}</td>
+    </tr>
+    <tr>
+        <td><b>unidad Academica: </b></td>
+        <td>{{ .Convenio.InfoGestor.UnidadAcademica }}</td>
+    </tr>
+    <tr>
+        <td><b>Cargo: </b></td>
+        <td>{{ .Convenio.InfoGestor.Cargo }}</td>
+    </tr>
+    <tr>
+        <td><b>Email: </b></td>
+        <td>{{ .Convenio.InfoGestor.Email }}</td>
+    </tr>
+    <tr>
+        <td><b>Telefono: </b></td>
+        <td>{{ .Convenio.InfoGestor.Telefono }}</td>
+    </tr>
+</table>
+
+</body>
+</html>

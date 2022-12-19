@@ -1,0 +1,70 @@
+package repository
+
+import (
+	"fmt"
+	"usuarios/configuration"
+	"usuarios/entidades"
+)
+
+var usuarioDuplicadoError usuarioError
+
+type usuarioError struct {
+	msg string
+}
+
+func (user usuarioError) Error() string {
+	return user.msg
+}
+
+type IUsuarioRepository interface {
+	ListarUsuario() []entidades.Roles
+	CrearUsuario(usuario *entidades.Usuario) (*entidades.Usuario, error)
+	EliminarUsuario(id string) error
+	ActualizarUsuario(usuario *entidades.Usuario) (*entidades.Usuario, error)
+	GetByEmail(email string) (*entidades.Usuario, error)
+}
+
+func ListarUsuario() []entidades.Usuario {
+	var usuarios []entidades.Usuario
+	configuration.Instance.Model(&entidades.Usuario{}).Preload("Roles").Find(&usuarios)
+	return usuarios
+}
+
+func CrearUsuario(usuario *entidades.Usuario) (*entidades.Usuario, error) {
+
+	result := configuration.Instance.Create(&usuario)
+	if err := result.Error; err != nil {
+		fmt.Println(err.Error())
+		return nil, fmt.Errorf("Error creando usuario")
+	}
+	return usuario, nil
+}
+
+func ActualizarUsuario(usuario *entidades.Usuario) (*entidades.Usuario, error) {
+	result := configuration.Instance.Updates(&usuario)
+	if err := result.Error; err != nil {
+		fmt.Println(err.Error())
+		return nil, fmt.Errorf("Error actualizando usuario")
+	}
+	return usuario, nil
+}
+
+func EliminarUsuario(id string, tipoId string) error {
+	result := configuration.Instance.Select("Roles").Delete(&entidades.Usuario{Id: id, TipoId: tipoId})
+
+	if err := result.Error; err != nil {
+		return fmt.Errorf("Error eliminando usuario")
+	}
+	return nil
+}
+
+func GetByEmail(email string) (*entidades.Usuario, error) {
+	var usuario entidades.Usuario
+	result := configuration.Instance.Where("Email = ?", email).Find(&usuario)
+
+	if err := result.Error; err != nil {
+		fmt.Println(err.Error())
+		return nil, fmt.Errorf("Error buscando por email")
+	}
+	return &usuario, nil
+}

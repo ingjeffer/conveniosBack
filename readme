@@ -1,0 +1,11 @@
+Para MySQL
+
+ejecutar:
+
+docker run --name usuarios-convenios-uis -e MYSQL_ROOT_PASSWORD=convenios -p 3306:3306 -d mysql
+
+
+para mongo:
+
+docker run -p 27017:27017 -d --name convenios-uis mongo
+
