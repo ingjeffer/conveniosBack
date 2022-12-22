@@ -88,7 +88,7 @@ func (controller *ConveniosController) GenerarPDFConvenio(w http.ResponseWriter,
 		return
 	}
 
-	w.Header().Set("Content-Disposition", "attachment; filename=kittens.pdf")
+	w.Header().Set("Content-Disposition", "attachment; filename=convenio.pdf")
 	w.Header().Set("Content-Type", "application/pdf")
 	w.WriteHeader(http.StatusOK)
 	w.Write(bytes)
