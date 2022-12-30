@@ -66,11 +66,11 @@ func (controller *UsuarioController) EliminarUsuario(w http.ResponseWriter, r *h
 func (controller *UsuarioController) ValidatePass(w http.ResponseWriter, r *http.Request) {
 	var user entidades.Usuario
 	json.NewDecoder(r.Body).Decode(&user)
-	err := service.ValidatePass(user.Email, user.Password)
+	role, err := service.ValidatePass(user.Email, user.Password)
 	if err != nil {
 		http.Error(w, "Credenciales inválidas", http.StatusBadRequest)
 		return
 	}
-	json.NewEncoder(w).Encode(nil)
+	json.NewEncoder(w).Encode(role)
 
 }

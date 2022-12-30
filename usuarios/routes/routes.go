@@ -16,10 +16,10 @@ func InitRoute() *chi.Mux {
 	usuarioController := controller.UsuarioController{}
 	rolesController := controller.RolesController{}
 	routes.Get("/api/usuario", usuarioController.ListarUsarios)
-	routes.Get("/api/roles", rolesController.ListarRoles)
+	routes.Get("/api/usuario/roles", rolesController.ListarRoles)
 	routes.Post("/api/usuario", usuarioController.CrearUsuario)
 	routes.Delete("/api/usuario/{tipo}/{id}", usuarioController.EliminarUsuario)
-	routes.Post("/api/session", usuarioController.ValidatePass)
+	routes.Post("/api/usuario/session", usuarioController.ValidatePass)
 	routes.Put("/api/usuario", usuarioController.ActualizarUsuario)
 	return routes
 }

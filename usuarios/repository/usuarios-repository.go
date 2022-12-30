@@ -60,7 +60,7 @@ func EliminarUsuario(id string, tipoId string) error {
 
 func GetByEmail(email string) (*entidades.Usuario, error) {
 	var usuario entidades.Usuario
-	result := configuration.Instance.Where("Email = ?", email).Find(&usuario)
+	result := configuration.Instance.Preload("Roles").Where("Email = ?", email).Find(&usuario)
 
 	if err := result.Error; err != nil {
 		fmt.Println(err.Error())

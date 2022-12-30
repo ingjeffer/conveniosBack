@@ -1,0 +1,12 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: convenio-service
+          uri: "http://localhost:8082"
+          predicates:
+            - Path=/api/convenio/**
+        - id: user-forecast
+          uri: "http://localhost:8081"
+          predicates:
+            - Path=/api/usuario/**

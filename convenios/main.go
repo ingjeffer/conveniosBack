@@ -14,7 +14,7 @@ func handleRequests() {
 }
 
 func main() {
-	fmt.Println("Inicializando proyecto Usuarios")
+	fmt.Println("Inicializando proyecto Convenios")
 	if !configuration.Checkconection() {
 		log.Fatal("Fallo conexión a BD")
 	}

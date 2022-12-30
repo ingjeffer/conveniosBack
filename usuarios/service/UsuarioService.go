@@ -93,10 +93,14 @@ func encryptPass(entidad *entidades.Usuario) {
 	entidad.Password = string(bytes)
 }
 
-func ValidatePass(email string, pass string) error {
+func ValidatePass(email string, pass string) (*entidades.Roles, error) {
 	entidad, err := repository.GetByEmail(email)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return bcrypt.CompareHashAndPassword([]byte(entidad.Password), []byte(pass))
+	err = bcrypt.CompareHashAndPassword([]byte(entidad.Password), []byte(pass))
+	if err != nil {
+		return nil, err
+	}
+	return entidad.Roles, nil
 }
