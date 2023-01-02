@@ -15,6 +15,7 @@ func handleRequests() {
 
 func main() {
 	fmt.Println("Inicializando proyecto Usuarios")
-	configuration.Iniciar()
+	configuration.IniciarDB()
+	configuration.IniciarRedis()
 	handleRequests()
 }

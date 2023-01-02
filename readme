@@ -9,3 +9,7 @@ para mongo:
 
 docker run -p 27017:27017 -d --name convenios-uis mongo
 
+
+para redis:
+
+docker run --name redis-convenios-uis -p 6380:6379 -d redis

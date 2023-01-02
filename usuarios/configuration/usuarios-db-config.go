@@ -10,7 +10,7 @@ import (
 
 var Instance *gorm.DB
 
-func Iniciar() {
+func IniciarDB() {
 
 	var err error
 	dns := "root:convenios@tcp(127.0.0.1:3306)/usuarios?charset=utf8mb4&parseTime=True&loc=Local"

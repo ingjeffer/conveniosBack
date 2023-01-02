@@ -5,6 +5,7 @@ import (
 	"github.com/dranikpg/dto-mapper"
 	"golang.org/x/crypto/bcrypt"
 	"usuarios/entidades"
+	"usuarios/jwt"
 	"usuarios/model"
 	"usuarios/repository"
 )
@@ -93,14 +94,26 @@ func encryptPass(entidad *entidades.Usuario) {
 	entidad.Password = string(bytes)
 }
 
-func ValidatePass(email string, pass string) (*entidades.Roles, error) {
+func ValidatePass(email string, pass string) (*model.Session, error) {
 	entidad, err := repository.GetByEmail(email)
 	if err != nil {
 		return nil, err
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(entidad.Password), []byte(pass))
+
 	if err != nil {
 		return nil, err
 	}
-	return entidad.Roles, nil
+
+	token, time, err := jwt.GenerarJWT(entidad)
+
+	if err != nil {
+		return nil, err
+	}
+
+	repository.GuardarSession(entidad.Id, token, time)
+
+	return &model.Session{
+		Token: token,
+	}, nil
 }
