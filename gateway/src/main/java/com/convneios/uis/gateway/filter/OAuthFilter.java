@@ -1,10 +1,8 @@
 package com.convneios.uis.gateway.filter;
 
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import com.convneios.uis.gateway.model.SessionDTO;
 import com.convneios.uis.gateway.repository.SessionRepository;
-import com.convneios.uis.gateway.repository.impl.SessionRedisRepository;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -15,7 +13,6 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.Base64;
-import java.util.Date;
 import java.util.logging.Logger;
 
 @Component

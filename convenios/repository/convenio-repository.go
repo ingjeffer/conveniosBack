@@ -4,6 +4,7 @@ import (
 	"context"
 	"convenios/configuration"
 	"convenios/entidades"
+	"convenios/model"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -23,6 +24,7 @@ func SaveConvenio(convenio *entidades.Convenio) (*entidades.Convenio, error) {
 	defer cancel()
 
 	col := configuration.MongoC.Database("convenios-uis").Collection("convenios")
+	convenio.Estado = model.Creado
 	result, err := col.InsertOne(ctx, convenio)
 
 	if err != nil {

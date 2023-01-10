@@ -94,3 +94,26 @@ func (controller *ConveniosController) GenerarPDFConvenio(w http.ResponseWriter,
 	w.Write(bytes)
 
 }
+
+func (controller *ConveniosController) FirmarConvenio(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+
+	if id == "" {
+		http.Error(w, "Id inválido", http.StatusBadRequest)
+		return
+	}
+
+	file, handler, err := r.FormFile("firma")
+
+	if err != nil {
+		http.Error(w, "Error campo firma", http.StatusBadRequest)
+		return
+	}
+
+	if err = service.FirmarConvenio(id, file, handler); err != nil {
+		http.Error(w, "Error al firmar", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}

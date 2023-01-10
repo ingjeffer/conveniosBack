@@ -15,6 +15,8 @@ type Convenio struct {
 	Beneficiarios     string             `json:"beneficiarios"`
 	Caracterizacion   string             `json:"caracterizacion"`
 	InfoGestor        InfoGestor         `json:"infoGestor"`
+	Estado            EstadoConvenio     `json:"estado"`
+	FirmaUrl          string             `json:"-"`
 }
 
 type InfoGestor struct {

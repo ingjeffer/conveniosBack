@@ -37,6 +37,11 @@
         tr:nth-child(even) {
             background-color: #dddddd;
         }
+        hr {
+            height: 1px;
+            border-color: black;
+            width: 50%;
+        }
     </style>
 </head>
 <body>
@@ -103,5 +108,12 @@
         <td>{{ .Convenio.InfoGestor.Telefono }}</td>
     </tr>
 </table>
+<center>
+    <br>
+    <br>
+    <img src="{{ .Convenio.FirmaUrl }}"  width="300" height="150">
+    <hr>
+    <p>Firma</p>
+</center>
 </body>
 </html>
