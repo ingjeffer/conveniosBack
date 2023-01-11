@@ -5,16 +5,23 @@ import (
 	"convenios/entidades"
 	"convenios/model"
 	"convenios/repository"
+	"crypto/tls"
+	"errors"
 	"fmt"
 	"github.com/SebastiaanKlippert/go-wkhtmltopdf"
 	"github.com/dranikpg/dto-mapper"
 	"github.com/yookoala/realpath"
+	gomail "gopkg.in/mail.v2"
 	"html/template"
 	"io"
 	"mime/multipart"
 	"os"
 	"strings"
 )
+
+const SERVER_SMTP = "convenio-uis-notificaciones@hotmail.com"
+const PASS_SMTP = "convenios-uis-notificaciones"
+const EMAIL_SECRETARIA = ""
 
 type IConvenioService interface {
 	GuardarConvenio(convenio *model.Convenio) (*model.Convenio, error)
@@ -23,6 +30,7 @@ type IConvenioService interface {
 	ActualizarConvenio(convenio *model.Convenio) error
 	GenerarPDF(id string) ([]byte, error)
 	FirmarConvenio(id string) error
+	CambiarEstadoConvenio(id string, cambio model.CambiarEstadoConvenio) error
 }
 
 func GuardarConvenio(convenio *model.Convenio) (*model.Convenio, error) {
@@ -178,6 +186,62 @@ func FirmarConvenio(id string, file multipart.File, header *multipart.FileHeader
 
 	convenioRespo.FirmaUrl = myRealpath
 	convenioRespo.Estado = model.Firmado
-	return ActualizarConvenio(convenioRespo)
 
+	if err := ActualizarConvenio(convenioRespo); err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	return sendEmail(convenioRespo)
+
+}
+
+func sendEmail(convenioRespo *model.Convenio) error {
+
+	m := gomail.NewMessage()
+	m.SetHeader("From", SERVER_SMTP)
+	m.SetHeader("To", EMAIL_SECRETARIA)
+	m.SetHeader("Subject", "Nuevo convenio creado")
+	m.SetBody("text/html", "Hola se informa que se ha creado el convenio con nombre <b>"+convenioRespo.NombreConvenio+"</b> y id <b>"+convenioRespo.ID.Hex()+"</b><br>Por favor validar desde el portal.")
+	d := gomail.NewDialer("smtp-mail.outlook.com", 587, SERVER_SMTP, PASS_SMTP)
+	d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
+
+	if err := d.DialAndSend(m); err != nil {
+		fmt.Println(err)
+		return err
+	}
+	return nil
+}
+
+func CambiarEstadoConvenio(id string, cambio model.CambiarEstadoConvenio) error {
+
+	convenioRespo, err := GetConvenio(id)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return err
+	}
+
+	if convenioRespo.Estado != model.Firmado {
+		return errors.New("Estado no válido")
+	}
+
+	if cambio.CambioEstado {
+		convenioRespo.Estado = model.Aprobado_Secretaria
+	} else {
+		convenioRespo.Estado = model.Rechazado_Secretaria
+
+		if len(cambio.Observacion) < 1 {
+			return errors.New("Observacion no válida")
+		}
+
+		convenioRespo.Observaciones = cambio.Observacion
+	}
+
+	if err := ActualizarConvenio(convenioRespo); err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	return nil
 }

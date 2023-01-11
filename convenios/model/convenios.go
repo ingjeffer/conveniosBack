@@ -16,6 +16,7 @@ type Convenio struct {
 	Caracterizacion   string             `json:"caracterizacion"`
 	InfoGestor        InfoGestor         `json:"infoGestor"`
 	Estado            EstadoConvenio     `json:"estado"`
+	Observaciones     string             `json:"observaciones,omitempty"`
 	FirmaUrl          string             `json:"-"`
 }
 

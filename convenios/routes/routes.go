@@ -21,5 +21,7 @@ func InitRoute() *chi.Mux {
 	routes.Put("/api/convenio", convenioController.ActualizarConvenio)
 	routes.Get("/api/convenio/pdf/{id}", convenioController.GenerarPDFConvenio)
 	routes.Post("/api/convenio/firmar/{id}", convenioController.FirmarConvenio)
+	routes.Post("/api/convenio/cambiarEstado/{id}", convenioController.CambiarEstado)
+
 	return routes
 }

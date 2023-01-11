@@ -18,6 +18,7 @@ type Convenio struct {
 	InfoGestor        InfoGestor           `bson:"infoGestor,omitempty" json:"infoGestor"`
 	Estado            model.EstadoConvenio `bson:"estado,omitempty" json:"estado"`
 	FirmaUrl          string               `bson:"firmaUrl,omitempty" json:"firmaUrl"`
+	Observaciones     string               `bson:"observaciones,omitempty" json:"observaciones"`
 }
 
 type InfoGestor struct {

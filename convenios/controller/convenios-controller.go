@@ -117,3 +117,22 @@ func (controller *ConveniosController) FirmarConvenio(w http.ResponseWriter, r *
 
 	w.WriteHeader(http.StatusOK)
 }
+
+func (controller *ConveniosController) CambiarEstado(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+
+	if id == "" {
+		http.Error(w, "Id inválido", http.StatusBadRequest)
+		return
+	}
+
+	var cambio model.CambiarEstadoConvenio
+	json.NewDecoder(r.Body).Decode(&cambio)
+
+	if err := service.CambiarEstadoConvenio(id, cambio); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
