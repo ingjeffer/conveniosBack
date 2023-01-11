@@ -1,0 +1,448 @@
+{
+	"info": {
+		"_postman_id": "a3fc9a68-e88a-45dc-a9fb-aeddb0ed79ba",
+		"name": "usuarios-convenios-uis",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "usuarios",
+			"item": [
+				{
+					"name": "listar-usuarios",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_conv}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/api/usuario",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"usuario"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "listar-roles",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_conv}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/api/usuario/roles",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"usuario",
+								"roles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "crear-usuario",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "    {\n        \"id\": \"121415\",\n        \"tipoId\": \"CC\",\n        \"nombres\": \"Everson\",\n        \"apellidos\": \"Sarmiento Santos\",\n        \"password\": \"test123\",\n        \"email\": \"test@gmail.com\",\n        \"roleId\": 1\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8081/api/usuario",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"usuario"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "eliminar-usuario",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:8081/api/usuario/CC/121415",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"usuario",
+								"CC",
+								"121415"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "session",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response = pm.response.json();\r",
+									"\r",
+									"if (!!response && !!response.token) {\r",
+									"\r",
+									"    pm.globals.set(\"token_conv\", response.token);\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "    {\n        \"password\": \"test123\",\n        \"email\": \"test@gmail.com\"\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/usuario/session",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"usuario",
+								"session"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "actualizar-usuario",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "    {\n        \"id\": \"121415\",\n        \"tipoId\": \"CC\",\n        \"nombres\": \"Carlos\",\n        \"apellidos\": \"Sarmiento Santos\",\n        \"password\": \"prueba12\",\n        \"email\": \"prueba@gmail.com\",\n        \"roleId\": 2\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8081/api/usuario",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"usuario"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "convenios",
+			"item": [
+				{
+					"name": "convenio/firmar",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_conv}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGVsbGlkbyI6IlNhcm1pZW50byBTYW50b3MiLCJlbWFpbCI6InRlc3QxQGdtYWlsLmNvbSIsImV4cCI6MTY3MzQwMzU0OCwiaWQiOiIxMjE0MTUxIiwibm9tYnJlIjoiRXZlcnNvbiIsInJvbGUiOnsiSWQiOjEsIk5vbWJyZSI6ImFkbWluIn19.pY9m1ZRRTa8OmGAOlcYnAzbn8iWwfwEJ-n6sWGsk3TM",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "firma",
+									"type": "file",
+									"src": "/C:/Users/Jefferson/Downloads/img_firma-3-1200x550-cc.jpg"
+								}
+							]
+						},
+						"url": {
+							"raw": "localhost:8080/api/convenio/firmar/6396860eb28c4f0e7a38b4ec",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"convenio",
+								"firmar",
+								"6396860eb28c4f0e7a38b4ec"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "crear-convenio",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "/*\n{\n    \"nombreInstitucion\": \"Ecopetrol\",\n    \"nombreConvenio\": \"convenio ingenieria civil\",\n    \"objetoConvenio\": \"incentivar a la construcción\",\n    \"tipologiaConvenio\": \"Marco\",\n    \"modalidadConvenio\": \"Movilidad de profesores\",\n    \"beneficiarios\": \"Profesores\",\n    \"caracterizacion\": \"Investigacion\",\n    \"infoGestor\": {\n        \"nombreResponsable\": \"Jefferson Martinez\",\n        \"fecha\": \"2018-03-29T00:00:00Z\",\n        \"unidadAcademica\": \"sistemas\",\n        \"cargo\": \"Profesor titular\",\n        \"email\": \"test@gmail.com\",\n        \"telefono\": \"3112104875\"\n    }\n}\n*/\n\n{\n   \"id\":\"\",\n   \"nombreInstitucion\":\"inst 4\",\n   \"nombreConvenio\":\"conv 4\",\n   \"objetoConvenio\":\"obj 4\",\n   \"tipologiaConvenio\":\"Especifico\",\n   \"modalidadConvenio\":\"Intercambio de Estudiantes de Pregrado y/o Postgrado\",\n   \"beneficiarios\":\"Estudiantes de Postgrado\",\n   \"caracterizacion\":\"Homologacion de asignaturas o crediros cursados / Intercambio Academico\",\n   \"infoGestor\":{\n      \"nombreResponsable\":\"respo 4\",\n      \"fecha\":\"2022/12/27T00:00:00Z\",\n      \"unidadAcademica\":\"aca 4\",\n      \"cargo\":\"Profesor titular\",\n      \"email\":\"correo4@correo.com\",\n      \"telefono\":\"6767676\"\n   }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8081/api/session",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"session"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "obtener-convenios",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_conv}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/api/convenio",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"convenio"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "obtener-convenio",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_conv}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/api/convenio/6396860eb28c4f0e7a38b4ec",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"convenio",
+								"6396860eb28c4f0e7a38b4ec"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "actualizar-convenio",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_conv}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"6396860eb28c4f0e7a38b4ec\",\n    \"nombreInstitucion\": \"Acueducto\",\n    \"nombreConvenio\": \"convenio ingenieria civil\",\n    \"objetoConvenio\": \"incentivar a la construcción\",\n    \"tipologiaConvenio\": \"Marco\",\n    \"modalidadConvenio\": \"Movilidad de profesores\",\n    \"beneficiarios\": \"Profesores\",\n    \"caracterizacion\": \"Investigacion\",\n    \"infoGestor\": {\n        \"nombreResponsable\": \"Jefferson Martinez\",\n        \"fecha\": \"2018-03-29T00:00:00Z\",\n        \"unidadAcademica\": \"sistemas\",\n        \"cargo\": \"Profesor titular\",\n        \"email\": \"test@gmail.com\",\n        \"telefono\": \"3112104875\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/convenio",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"convenio"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "generar pdf",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_conv}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/api/convenio/pdf/6396860eb28c4f0e7a38b4ec",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"convenio",
+								"pdf",
+								"6396860eb28c4f0e7a38b4ec"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "convenio/cambiarEstado",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_conv}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGVsbGlkbyI6IlNhcm1pZW50byBTYW50b3MiLCJlbWFpbCI6InRlc3QxQGdtYWlsLmNvbSIsImV4cCI6MTY3MzQwMjE3NywiaWQiOiIxMjE0MTUxIiwibm9tYnJlIjoiRXZlcnNvbiIsInJvbGUiOnsiSWQiOjEsIk5vbWJyZSI6ImFkbWluIn19.A25S_5v1J4V5-ObrNav5n_N_dj3Vv9z5gn2iiCQ0DJc",
+								"disabled": true
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"cambioEstado\": false,\n    \"observacion\": \"Rechaza porque hace falta firma\"\n}"
+						},
+						"url": {
+							"raw": "localhost:8080/api/convenio/cambiarEstado/6396860eb28c4f0e7a38b4ec",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"convenio",
+								"cambiarEstado",
+								"6396860eb28c4f0e7a38b4ec"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
