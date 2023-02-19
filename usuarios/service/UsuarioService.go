@@ -2,12 +2,13 @@ package service
 
 import (
 	"fmt"
-	"github.com/dranikpg/dto-mapper"
-	"golang.org/x/crypto/bcrypt"
 	"usuarios/entidades"
 	"usuarios/jwt"
 	"usuarios/model"
 	"usuarios/repository"
+
+	"github.com/dranikpg/dto-mapper"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type IUsuarioService interface {
@@ -118,7 +119,6 @@ func ValidatePass(email string, pass string) (*model.Session, error) {
 	}, nil
 }
 
-
 func ListarCorreo(role string) (*model.Usuario, error) {
 
 	resp, err := repository.GetEmailByRole(role)
@@ -129,7 +129,23 @@ func ListarCorreo(role string) (*model.Usuario, error) {
 	fmt.Println(resp)
 
 	return &model.Usuario{
-		Id: resp.Id,
+		Id:    resp.Id,
+		Email: resp.Email,
+	}, nil
+}
+
+func ListarCorreoGestor(role string) (*model.Usuario, error) {
+
+	resp, err := repository.GetUserById(role)
+
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println(resp)
+
+	return &model.Usuario{
+		Id:    resp.Id,
 		Email: resp.Email,
 	}, nil
 }

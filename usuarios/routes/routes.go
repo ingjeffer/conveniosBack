@@ -1,9 +1,10 @@
 package routes
 
 import (
-	"github.com/go-chi/chi"
 	"usuarios/controller"
 	"usuarios/middleware"
+
+	"github.com/go-chi/chi"
 )
 
 type IRoutes interface {
@@ -22,5 +23,6 @@ func InitRoute() *chi.Mux {
 	routes.Post("/api/usuario/session", usuarioController.ValidatePass)
 	routes.Put("/api/usuario", usuarioController.ActualizarUsuario)
 	routes.Get("/api/usuario/correo/{id}", usuarioController.ListarCorreo)
+	routes.Get("/api/usuario/correo/gestor/{id}", usuarioController.ListarCorreoGestor)
 	return routes
 }

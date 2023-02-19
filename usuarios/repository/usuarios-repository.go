@@ -82,3 +82,16 @@ func GetEmailByRole(role string) (*entidades.Usuario, error) {
 
 	return &usuario, nil
 }
+
+func GetUserById(id string) (*entidades.Usuario, error) {
+	var usuario entidades.Usuario
+	fmt.Println(id)
+	result := configuration.Instance.Where("id = ?", id).Find(&usuario)
+
+	if err := result.Error; err != nil {
+		fmt.Println(err.Error())
+		return nil, fmt.Errorf("Error buscando por id")
+	}
+
+	return &usuario, nil
+}

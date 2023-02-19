@@ -2,11 +2,12 @@ package controller
 
 import (
 	"encoding/json"
-	"github.com/go-chi/chi"
 	"net/http"
 	"usuarios/entidades"
 	"usuarios/model"
 	"usuarios/service"
+
+	"github.com/go-chi/chi"
 )
 
 type UsuarioController struct {
@@ -86,3 +87,13 @@ func (controller *UsuarioController) ListarCorreo(w http.ResponseWriter, r *http
 
 }
 
+func (controller *UsuarioController) ListarCorreoGestor(w http.ResponseWriter, r *http.Request) {
+	role := chi.URLParam(r, "id")
+	email, err := service.ListarCorreoGestor(role)
+	if err != nil {
+		http.Error(w, "Rol inválido", http.StatusBadRequest)
+		return
+	}
+	json.NewEncoder(w).Encode(email)
+
+}
