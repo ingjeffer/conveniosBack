@@ -227,6 +227,8 @@ func sendEmail(convenioRespo *model.Convenio, role string) error {
 	var usuario model.Usuario
 	json.Unmarshal(bodyBytes, &usuario)
 
+	fmt.Println(usuario.Email)
+
 	m := gomail.NewMessage()
 	m.SetHeader("From", SERVER_SMTP)
 
@@ -260,8 +262,6 @@ func CambiarEstadoConvenio(id string, cambio model.CambiarEstadoConvenio, role s
 
 	convenioRespo, err := GetConvenio(id)
 
-	roleEmail := ""
-
 	if err != nil {
 		fmt.Println(err.Error())
 		return err
@@ -281,7 +281,6 @@ func CambiarEstadoConvenio(id string, cambio model.CambiarEstadoConvenio, role s
 		switch role {
 		case "secretaria":
 			convenioRespo.Estado = model.Rechazado_Secretaria
-			roleEmail = "gestor"
 		case "director relex":
 			convenioRespo.Estado = model.Rechazado_Director_Relex
 		default:
@@ -293,14 +292,13 @@ func CambiarEstadoConvenio(id string, cambio model.CambiarEstadoConvenio, role s
 		}
 
 		convenioRespo.Observaciones = cambio.Observacion
+		sendEmail(convenioRespo, "gestor")
 	}
 
 	if err := ActualizarConvenio(convenioRespo); err != nil {
 		fmt.Println(err)
 		return err
 	}
-
-	sendEmail(convenioRespo, roleEmail)
 
 	return nil
 }
