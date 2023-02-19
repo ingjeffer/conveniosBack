@@ -15,6 +15,8 @@ func (controller *ConveniosController) CrearConvenio(w http.ResponseWriter, r *h
 	var convenio model.Convenio
 	json.NewDecoder(r.Body).Decode(&convenio)
 
+	idHeader := r.Header.Get("x-id")
+	convenio.IdGestorCreador = idHeader
 	convenioResp, err := service.GuardarConvenio(&convenio)
 
 	if err != nil {
@@ -129,7 +131,7 @@ func (controller *ConveniosController) CambiarEstado(w http.ResponseWriter, r *h
 	var cambio model.CambiarEstadoConvenio
 	json.NewDecoder(r.Body).Decode(&cambio)
 
-	if err := service.CambiarEstadoConvenio(id, cambio); err != nil {
+	if err := service.CambiarEstadoConvenio(id, cambio, r.Header.Get("x-role")); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

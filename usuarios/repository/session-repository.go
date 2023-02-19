@@ -18,6 +18,6 @@ func GuardarSession(id string, token string, duration int64) {
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
-		fmt.Println("Sessión guardada correctamete -> ", "Id"+id)
+		fmt.Println("Sessión guardada correctamente -> ", "Id"+id)
 	}
 }

@@ -19,6 +19,7 @@ type Convenio struct {
 	Estado            model.EstadoConvenio `bson:"estado,omitempty" json:"estado"`
 	FirmaUrl          string               `bson:"firmaUrl,omitempty" json:"firmaUrl"`
 	Observaciones     string               `bson:"observaciones,omitempty" json:"observaciones"`
+	IdGestorCreador   string               `bson:"idGestorCreador,omitempty" json:"idGestorCreador"`
 }
 
 type InfoGestor struct {

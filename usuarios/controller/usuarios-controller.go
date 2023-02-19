@@ -74,3 +74,15 @@ func (controller *UsuarioController) ValidatePass(w http.ResponseWriter, r *http
 	json.NewEncoder(w).Encode(role)
 
 }
+
+func (controller *UsuarioController) ListarCorreo(w http.ResponseWriter, r *http.Request) {
+	role := chi.URLParam(r, "id")
+	email, err := service.ListarCorreo(role)
+	if err != nil {
+		http.Error(w, "Rol inválido", http.StatusBadRequest)
+		return
+	}
+	json.NewEncoder(w).Encode(email)
+
+}
+

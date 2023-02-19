@@ -22,6 +22,7 @@ type IUsuarioRepository interface {
 	EliminarUsuario(id string) error
 	ActualizarUsuario(usuario *entidades.Usuario) (*entidades.Usuario, error)
 	GetByEmail(email string) (*entidades.Usuario, error)
+	GetEmailByRole(role string) (*entidades.Usuario, error)
 }
 
 func ListarUsuario() []entidades.Usuario {
@@ -66,5 +67,18 @@ func GetByEmail(email string) (*entidades.Usuario, error) {
 		fmt.Println(err.Error())
 		return nil, fmt.Errorf("Error buscando por email")
 	}
+	return &usuario, nil
+}
+
+func GetEmailByRole(role string) (*entidades.Usuario, error) {
+	var usuario entidades.Usuario
+
+	result := configuration.Instance.Joins("JOIN roles ON usuarios.role_id = roles.id").Where("roles.nombre = ?", role).Preload("Roles").Find(&usuario)
+
+	if err := result.Error; err != nil {
+		fmt.Println(err.Error())
+		return nil, fmt.Errorf("Error buscando por email")
+	}
+
 	return &usuario, nil
 }

@@ -6,22 +6,26 @@ import (
 	"convenios/model"
 	"convenios/repository"
 	"crypto/tls"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"html/template"
+	"io"
+	"io/ioutil"
+	"mime/multipart"
+	"net/http"
+	"os"
+	"strings"
+
 	"github.com/SebastiaanKlippert/go-wkhtmltopdf"
 	"github.com/dranikpg/dto-mapper"
 	"github.com/yookoala/realpath"
 	gomail "gopkg.in/mail.v2"
-	"html/template"
-	"io"
-	"mime/multipart"
-	"os"
-	"strings"
 )
 
 const SERVER_SMTP = "convenio-uis-notificaciones@hotmail.com"
 const PASS_SMTP = "convenios-uis-notificaciones"
-const EMAIL_SECRETARIA = ""
+const EMAIL_SECRETARIA = "retratos.bga@gmail.com"
 
 type IConvenioService interface {
 	GuardarConvenio(convenio *model.Convenio) (*model.Convenio, error)
@@ -30,7 +34,7 @@ type IConvenioService interface {
 	ActualizarConvenio(convenio *model.Convenio) error
 	GenerarPDF(id string) ([]byte, error)
 	FirmarConvenio(id string) error
-	CambiarEstadoConvenio(id string, cambio model.CambiarEstadoConvenio) error
+	CambiarEstadoConvenio(id string, cambio model.CambiarEstadoConvenio, role string) error
 }
 
 func GuardarConvenio(convenio *model.Convenio) (*model.Convenio, error) {
@@ -198,9 +202,30 @@ func FirmarConvenio(id string, file multipart.File, header *multipart.FileHeader
 
 func sendEmail(convenioRespo *model.Convenio) error {
 
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", "http://localhost:8081/api/usuario/correo/secretaria", nil)
+	if err != nil {
+		fmt.Print(err.Error())
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Print(err.Error())
+	}
+
+	defer resp.Body.Close()
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Print(err.Error())
+	}
+	var usuario model.Usuario
+	json.Unmarshal(bodyBytes, &usuario)
+
+	fmt.Println("user -> ", usuario)
 	m := gomail.NewMessage()
 	m.SetHeader("From", SERVER_SMTP)
-	m.SetHeader("To", EMAIL_SECRETARIA)
+
+	m.SetHeader("To", usuario.Email)
 	m.SetHeader("Subject", "Nuevo convenio creado")
 	m.SetBody("text/html", "Hola se informa que se ha creado el convenio con nombre <b>"+convenioRespo.NombreConvenio+"</b> y id <b>"+convenioRespo.ID.Hex()+"</b><br>Por favor validar desde el portal.")
 	d := gomail.NewDialer("smtp-mail.outlook.com", 587, SERVER_SMTP, PASS_SMTP)
@@ -213,7 +238,7 @@ func sendEmail(convenioRespo *model.Convenio) error {
 	return nil
 }
 
-func CambiarEstadoConvenio(id string, cambio model.CambiarEstadoConvenio) error {
+func CambiarEstadoConvenio(id string, cambio model.CambiarEstadoConvenio, role string) error {
 
 	convenioRespo, err := GetConvenio(id)
 
@@ -222,14 +247,25 @@ func CambiarEstadoConvenio(id string, cambio model.CambiarEstadoConvenio) error 
 		return err
 	}
 
-	if convenioRespo.Estado != model.Firmado {
-		return errors.New("Estado no válido")
-	}
-
 	if cambio.CambioEstado {
-		convenioRespo.Estado = model.Aprobado_Secretaria
+		switch role {
+		case "secretaria":
+			convenioRespo.Estado = model.Aprobado_Secretaria
+		case "director relex":
+			convenioRespo.Estado = model.Aprobado_Director_Relex
+		default:
+			errors.New("Error de role para cambiar estado")
+		}
 	} else {
-		convenioRespo.Estado = model.Rechazado_Secretaria
+
+		switch role {
+		case "secretaria":
+			convenioRespo.Estado = model.Rechazado_Secretaria
+		case "director relex":
+			convenioRespo.Estado = model.Rechazado_Director_Relex
+		default:
+			errors.New("Error de role para cambiar estado")
+		}
 
 		if len(cambio.Observacion) < 1 {
 			return errors.New("Observacion no válida")

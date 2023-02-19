@@ -21,5 +21,6 @@ func InitRoute() *chi.Mux {
 	routes.Delete("/api/usuario/{tipo}/{id}", usuarioController.EliminarUsuario)
 	routes.Post("/api/usuario/session", usuarioController.ValidatePass)
 	routes.Put("/api/usuario", usuarioController.ActualizarUsuario)
+	routes.Get("/api/usuario/correo/{id}", usuarioController.ListarCorreo)
 	return routes
 }

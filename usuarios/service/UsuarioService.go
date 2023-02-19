@@ -117,3 +117,19 @@ func ValidatePass(email string, pass string) (*model.Session, error) {
 		Token: token,
 	}, nil
 }
+
+
+func ListarCorreo(role string) (*model.Usuario, error) {
+
+	resp, err := repository.GetEmailByRole(role)
+
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(resp)
+
+	return &model.Usuario{
+		Id: resp.Id,
+		Email: resp.Email,
+	}, nil
+}

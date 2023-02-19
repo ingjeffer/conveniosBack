@@ -62,6 +62,15 @@ public class OAuthFilter implements GlobalFilter {
                 exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                 return exchange.getResponse().setComplete();
             }
+            exchange.getRequest()
+                    .mutate()
+                    .header("x-role", session.getRole().getNombre())
+                    .build();
+
+            exchange.getRequest()
+                    .mutate()
+                    .header("x-id", session.getId())
+                    .build();
 
             return chain.filter(exchange);
 

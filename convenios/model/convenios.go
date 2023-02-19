@@ -1,8 +1,9 @@
 package model
 
 import (
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Convenio struct {
@@ -18,6 +19,7 @@ type Convenio struct {
 	Estado            EstadoConvenio     `json:"estado"`
 	Observaciones     string             `json:"observaciones,omitempty"`
 	FirmaUrl          string             `json:"-"`
+	IdGestorCreador   string             `json:"-"`
 }
 
 type InfoGestor struct {
