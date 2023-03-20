@@ -235,15 +235,12 @@ func sendEmail(convenioRespo *model.Convenio, role string) error {
 	m.SetHeader("To", usuario.Email)
 
 	switch role {
-	case "secretaria":
+	case "secretaria", "director relex", "consejo academico":
 		m.SetHeader("Subject", "Nuevo convenio creado")
 		m.SetBody("text/html", "Hola se informa que se ha creado el convenio con nombre <b>"+convenioRespo.NombreConvenio+"</b> y id <b>"+convenioRespo.ID.Hex()+"</b><br>Por favor validar desde el portal.")
 	case "gestor":
 		m.SetHeader("Subject", "Convenio rechazado")
 		m.SetBody("text/html", "Hola se informa que se ha rechazado el convenio con nombre <b>"+convenioRespo.NombreConvenio+"</b> y id <b>"+convenioRespo.ID.Hex()+"</b><br>Por favor validar desde el portal.")
-	case "director relex":
-		m.SetHeader("Subject", "Nuevo convenio creado")
-		m.SetBody("text/html", "Hola se informa que se ha creado el convenio con nombre <b>"+convenioRespo.NombreConvenio+"</b> y id <b>"+convenioRespo.ID.Hex()+"</b><br>Por favor validar desde el portal.")
 	default:
 		return errors.New("Error de role para enviar mail")
 	}
@@ -267,6 +264,10 @@ func CambiarEstadoConvenio(id string, cambio model.CambiarEstadoConvenio, role s
 		return err
 	}
 
+	if convenioRespo.Estado == model.Rechazado_Consejo_Academico {
+		return errors.New("Error No se puede cambiar el estado ya que se encuentra en estado " + string(convenioRespo.Estado))
+	}
+
 	if cambio.CambioEstado {
 		switch role {
 		case "secretaria":
@@ -274,8 +275,11 @@ func CambiarEstadoConvenio(id string, cambio model.CambiarEstadoConvenio, role s
 			sendEmail(convenioRespo, "director relex")
 		case "director relex":
 			convenioRespo.Estado = model.Aprobado_Director_Relex
+			sendEmail(convenioRespo, "consejo academico")
+		case "consejo academico":
+			convenioRespo.Estado = model.Aprobado_Consejo_Academico
 		default:
-			errors.New("Error de role para cambiar estado")
+			return errors.New("Error de role para cambiar estado")
 		}
 	} else {
 		switch role {
@@ -283,6 +287,8 @@ func CambiarEstadoConvenio(id string, cambio model.CambiarEstadoConvenio, role s
 			convenioRespo.Estado = model.Rechazado_Secretaria
 		case "director relex":
 			convenioRespo.Estado = model.Rechazado_Director_Relex
+		case "consejo academico":
+			convenioRespo.Estado = model.Rechazado_Consejo_Academico
 		default:
 			return errors.New("Error de role para cambiar estado")
 		}

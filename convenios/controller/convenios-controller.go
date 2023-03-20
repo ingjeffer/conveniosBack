@@ -4,8 +4,9 @@ import (
 	"convenios/model"
 	"convenios/service"
 	"encoding/json"
-	"github.com/go-chi/chi"
 	"net/http"
+
+	"github.com/go-chi/chi"
 )
 
 type ConveniosController struct {
