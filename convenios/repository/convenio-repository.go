@@ -12,14 +12,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-var permisos = map[string][]model.EstadoConvenio{
-	"secretaria":        {model.Firmado},
-	"director relex":    {model.Aprobado_Secretaria},
-	"consejo academico": {model.Aprobado_Director_Relex},
-	"vicerectoria":      {model.Aprobado_Consejo_Academico_Inv},
-	"director juridico": {model.Aprobado_Consejo_Academico},
-}
-
 func SaveConvenio(convenio *entidades.Convenio) (*entidades.Convenio, error) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
@@ -39,7 +31,7 @@ func SaveConvenio(convenio *entidades.Convenio) (*entidades.Convenio, error) {
 	return convenio, nil
 }
 
-func GetConvenios(role string, idGestor string) ([]entidades.Convenio, error) {
+func GetConvenios(idGestor string, permisos []model.EstadoConvenio) ([]entidades.Convenio, error) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
@@ -48,10 +40,10 @@ func GetConvenios(role string, idGestor string) ([]entidades.Convenio, error) {
 
 	var filtro interface{}
 
-	if role == "gestor" {
+	if idGestor != "" {
 		filtro = bson.M{"idGestorCreador": idGestor}
 	} else {
-		filtro = bson.M{"estado": bson.M{"$in": permisos[role]}}
+		filtro = bson.M{"estado": bson.M{"$in": permisos}}
 	}
 
 	result, err := col.Find(ctx, filtro)

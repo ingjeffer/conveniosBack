@@ -16,4 +16,5 @@ const (
 	Aprobado_Vicerectoria          EstadoConvenio = "APROBADO_VICERECTORIA"
 	Aprobado_Director_Juridico     EstadoConvenio = "APROBADO_DIRECTOR_JURIDICO"
 	Rechazado_Director_Juridico    EstadoConvenio = "RECHAZADO_DIRECTOR_JURIDICO"
+	Aprobado_Director_Relex_Macro  EstadoConvenio = "APROBADO_DIRECTOR_RELEX"
 )

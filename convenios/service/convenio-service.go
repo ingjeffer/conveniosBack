@@ -31,6 +31,14 @@ type flujoRoles struct {
 	siguienteRole model.Role
 }
 
+var permisos = map[model.Role][]model.EstadoConvenio{
+	model.Secretaria:        {model.Firmado},
+	model.Director_Relex:    {model.Aprobado_Secretaria},
+	model.Consejo_Academico: {model.Aprobado_Director_Relex},
+	model.Vicerectoria:      {model.Aprobado_Consejo_Academico_Inv},
+	model.Directo_Juridico:  {model.Aprobado_Consejo_Academico},
+}
+
 var flujo = map[model.Role]map[bool]flujoRoles{
 	model.Secretaria: {
 		true: flujoRoles{
@@ -52,6 +60,16 @@ var flujo = map[model.Role]map[bool]flujoRoles{
 			siguienteRole: model.Gestor,
 		},
 	},
+	model.Director_Relex_Marco: {
+		true: flujoRoles{
+			estado:        model.Aprobado_Director_Relex,
+			siguienteRole: model.Directo_Juridico,
+		},
+		false: flujoRoles{
+			estado:        model.Rechazado_Director_Relex,
+			siguienteRole: model.Gestor,
+		},
+	},
 	model.Consejo_Academico: {
 		true: flujoRoles{
 			estado:        model.Aprobado_Consejo_Academico,
@@ -62,7 +80,7 @@ var flujo = map[model.Role]map[bool]flujoRoles{
 			siguienteRole: model.Gestor,
 		},
 	},
-	model.Consejo_Academico_Inv: {
+	model.Consejo_Academico_Investigacion: {
 		true: flujoRoles{
 			estado:        model.Aprobado_Consejo_Academico,
 			siguienteRole: model.Vicerectoria,
@@ -132,7 +150,11 @@ func GetConvenios(role string, idGestor string) ([]model.Convenio, error) {
 
 	var convenioModel []model.Convenio
 
-	entityList, err := repository.GetConvenios(role, idGestor)
+	if role != model.Gestor.String() {
+		idGestor = ""
+	}
+
+	entityList, err := repository.GetConvenios(idGestor, permisos[model.Role(role)])
 
 	if err != nil {
 		return nil, err
@@ -338,6 +360,10 @@ func CambiarEstadoConvenio(id string, cambio model.CambiarEstadoConvenio, role s
 
 	if convenioRespo.Caracterizacion == "Investigacion" && role == model.Consejo_Academico.String() {
 		role = role + " " + "investigacion"
+	}
+
+	if convenioRespo.TipologiaConvenio == "Marco" && role == model.Director_Relex.String() {
+		role = role + " " + "marco"
 	}
 
 	flujoRole, err := ObtenerEstadoYSiguienteRol(model.Role(role), cambio.CambioEstado)
