@@ -25,11 +25,10 @@ import (
 
 const SERVER_SMTP = "convenio-uis-notificaciones@hotmail.com"
 const PASS_SMTP = "convenios-uis-notificaciones"
-const EMAIL_SECRETARIA = "retratos.bga@gmail.com"
 
 type IConvenioService interface {
 	GuardarConvenio(convenio *model.Convenio) (*model.Convenio, error)
-	GetConvenios() ([]model.Convenio, error)
+	GetConvenios(role string) ([]model.Convenio, error)
 	GetConvenio() (*model.Convenio, error)
 	ActualizarConvenio(convenio *model.Convenio) error
 	GenerarPDF(id string) ([]byte, error)
@@ -60,11 +59,11 @@ func GuardarConvenio(convenio *model.Convenio) (*model.Convenio, error) {
 	return convenio, nil
 }
 
-func GetConvenios() ([]model.Convenio, error) {
+func GetConvenios(role string, idGestor string) ([]model.Convenio, error) {
 
 	var convenioModel []model.Convenio
 
-	entityList, err := repository.GetConvenios()
+	entityList, err := repository.GetConvenios(role, idGestor)
 
 	if err != nil {
 		return nil, err
@@ -235,7 +234,7 @@ func sendEmail(convenioRespo *model.Convenio, role string) error {
 	m.SetHeader("To", usuario.Email)
 
 	switch role {
-	case "secretaria", "director relex", "consejo academico":
+	case "secretaria", "director relex", "consejo academico", "vicerectoria", "director juridico":
 		m.SetHeader("Subject", "Nuevo convenio creado")
 		m.SetBody("text/html", "Hola se informa que se ha creado el convenio con nombre <b>"+convenioRespo.NombreConvenio+"</b> y id <b>"+convenioRespo.ID.Hex()+"</b><br>Por favor validar desde el portal.")
 	case "gestor":
@@ -264,7 +263,7 @@ func CambiarEstadoConvenio(id string, cambio model.CambiarEstadoConvenio, role s
 		return err
 	}
 
-	if convenioRespo.Estado == model.Rechazado_Consejo_Academico {
+	if convenioRespo.TipologiaConvenio == "Marco" && convenioRespo.Estado == model.Rechazado_Consejo_Academico {
 		return errors.New("Error No se puede cambiar el estado ya que se encuentra en estado " + string(convenioRespo.Estado))
 	}
 
@@ -277,7 +276,21 @@ func CambiarEstadoConvenio(id string, cambio model.CambiarEstadoConvenio, role s
 			convenioRespo.Estado = model.Aprobado_Director_Relex
 			sendEmail(convenioRespo, "consejo academico")
 		case "consejo academico":
-			convenioRespo.Estado = model.Aprobado_Consejo_Academico
+
+			if convenioRespo.Caracterizacion == "Investigacion" {
+				convenioRespo.Estado = model.Aprobado_Consejo_Academico_Inv
+				sendEmail(convenioRespo, "vicerectoria")
+			} else {
+				convenioRespo.Estado = model.Aprobado_Consejo_Academico
+				sendEmail(convenioRespo, "director juridico")
+			}
+		case "vicerectoria":
+			convenioRespo.Estado = model.Aprobado_Vicerectoria
+			sendEmail(convenioRespo, "secretaria")
+		case "director juridico":
+			convenioRespo.Estado = model.Aprobado_Director_Juridico
+			sendEmail(convenioRespo, "rectoria")
+
 		default:
 			return errors.New("Error de role para cambiar estado")
 		}

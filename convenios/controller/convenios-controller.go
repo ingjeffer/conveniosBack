@@ -30,7 +30,7 @@ func (controller *ConveniosController) CrearConvenio(w http.ResponseWriter, r *h
 }
 
 func (controller *ConveniosController) GetConvenios(w http.ResponseWriter, r *http.Request) {
-	convenios, err := service.GetConvenios()
+	convenios, err := service.GetConvenios(r.Header.Get("x-role"), r.Header.Get("x-id"))
 
 	if err != nil {
 		http.Error(w, "Error interno", http.StatusInternalServerError)

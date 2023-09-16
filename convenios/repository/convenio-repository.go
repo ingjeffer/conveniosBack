@@ -6,9 +6,10 @@ import (
 	"convenios/entidades"
 	"convenios/model"
 	"fmt"
+	"time"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"time"
 )
 
 type IConvenioRepository interface {
@@ -16,6 +17,14 @@ type IConvenioRepository interface {
 	GetConvenios() ([]entidades.Convenio, error)
 	GetConvenio(id string) (*entidades.Convenio, error)
 	ActualizarConvenio(*entidades.Convenio) error
+}
+
+var permisos = map[string][]model.EstadoConvenio{
+	"secretaria":        {model.Firmado},
+	"director relex":    {model.Aprobado_Secretaria},
+	"consejo academico": {model.Aprobado_Director_Relex},
+	"vicerectoria":      {model.Aprobado_Consejo_Academico_Inv},
+	"director juridico": {model.Aprobado_Consejo_Academico},
 }
 
 func SaveConvenio(convenio *entidades.Convenio) (*entidades.Convenio, error) {
@@ -37,14 +46,22 @@ func SaveConvenio(convenio *entidades.Convenio) (*entidades.Convenio, error) {
 	return convenio, nil
 }
 
-func GetConvenios() ([]entidades.Convenio, error) {
+func GetConvenios(role string, idGestor string) ([]entidades.Convenio, error) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
 	col := configuration.MongoC.Database("convenios-uis").Collection("convenios")
 
-	result, err := col.Find(ctx, bson.D{})
+	var filtro interface{}
+
+	if role == "gestor" {
+		filtro = bson.M{"idGestorCreador": idGestor}
+	} else {
+		filtro = bson.M{"estado": bson.M{"$in": permisos[role]}}
+	}
+
+	result, err := col.Find(ctx, filtro)
 
 	if err != nil {
 		fmt.Println(err)
