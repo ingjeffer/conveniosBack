@@ -31,6 +31,7 @@ type flujoRoles struct {
 	siguienteRole model.Role
 }
 
+// manejo los permisos
 var permisos = map[model.Role][]model.EstadoConvenio{
 	model.Secretaria:        {model.Firmado},
 	model.Director_Relex:    {model.Aprobado_Secretaria},
@@ -39,6 +40,7 @@ var permisos = map[model.Role][]model.EstadoConvenio{
 	model.Directo_Juridico:  {model.Aprobado_Consejo_Academico},
 }
 
+// acá manejo el flujo
 var flujo = map[model.Role]map[bool]flujoRoles{
 	model.Secretaria: {
 		true: flujoRoles{
@@ -107,6 +109,16 @@ var flujo = map[model.Role]map[bool]flujoRoles{
 		},
 		false: flujoRoles{
 			estado:        model.Rechazado_Director_Juridico,
+			siguienteRole: model.Gestor,
+		},
+	},
+	model.Rectoria: {
+		true: flujoRoles{
+			estado:        model.Aprobado_Rectoria,
+			siguienteRole: model.Secretaria,
+		},
+		false: flujoRoles{
+			estado:        model.Rechazado_Rectoria,
 			siguienteRole: model.Gestor,
 		},
 	},
