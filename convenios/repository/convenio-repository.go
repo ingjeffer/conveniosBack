@@ -12,13 +12,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type IConvenioRepository interface {
-	SaveConvenio(*entidades.Convenio) (*entidades.Convenio, error)
-	GetConvenios() ([]entidades.Convenio, error)
-	GetConvenio(id string) (*entidades.Convenio, error)
-	ActualizarConvenio(*entidades.Convenio) error
-}
-
 var permisos = map[string][]model.EstadoConvenio{
 	"secretaria":        {model.Firmado},
 	"director relex":    {model.Aprobado_Secretaria},

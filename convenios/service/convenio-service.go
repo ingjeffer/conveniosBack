@@ -26,14 +26,83 @@ import (
 const SERVER_SMTP = "convenio-uis-notificaciones@hotmail.com"
 const PASS_SMTP = "convenios-uis-notificaciones"
 
-type IConvenioService interface {
-	GuardarConvenio(convenio *model.Convenio) (*model.Convenio, error)
-	GetConvenios(role string) ([]model.Convenio, error)
-	GetConvenio() (*model.Convenio, error)
-	ActualizarConvenio(convenio *model.Convenio) error
-	GenerarPDF(id string) ([]byte, error)
-	FirmarConvenio(id string) error
-	CambiarEstadoConvenio(id string, cambio model.CambiarEstadoConvenio, role string) error
+type flujoRoles struct {
+	estado        model.EstadoConvenio
+	siguienteRole model.Role
+}
+
+var flujo = map[model.Role]map[bool]flujoRoles{
+	model.Secretaria: {
+		true: flujoRoles{
+			estado:        model.Aprobado_Secretaria,
+			siguienteRole: model.Director_Relex,
+		},
+		false: flujoRoles{
+			estado:        model.Rechazado_Secretaria,
+			siguienteRole: model.Gestor,
+		},
+	},
+	model.Director_Relex: {
+		true: flujoRoles{
+			estado:        model.Aprobado_Director_Relex,
+			siguienteRole: model.Consejo_Academico,
+		},
+		false: flujoRoles{
+			estado:        model.Rechazado_Director_Relex,
+			siguienteRole: model.Gestor,
+		},
+	},
+	model.Consejo_Academico: {
+		true: flujoRoles{
+			estado:        model.Aprobado_Consejo_Academico,
+			siguienteRole: model.Directo_Juridico,
+		},
+		false: flujoRoles{
+			estado:        model.Rechazado_Consejo_Academico,
+			siguienteRole: model.Gestor,
+		},
+	},
+	model.Consejo_Academico_Inv: {
+		true: flujoRoles{
+			estado:        model.Aprobado_Consejo_Academico,
+			siguienteRole: model.Vicerectoria,
+		},
+		false: flujoRoles{
+			estado:        model.Rechazado_Consejo_Academico,
+			siguienteRole: model.Gestor,
+		},
+	},
+	model.Vicerectoria: {
+		true: flujoRoles{
+			estado:        model.Aprobado_Vicerectoria,
+			siguienteRole: model.Secretaria,
+		},
+		false: flujoRoles{
+			estado:        model.Rechazado_Vicerectoria,
+			siguienteRole: model.Gestor,
+		},
+	},
+	model.Directo_Juridico: {
+		true: flujoRoles{
+			estado:        model.Aprobado_Director_Juridico,
+			siguienteRole: model.Rectoria,
+		},
+		false: flujoRoles{
+			estado:        model.Rechazado_Director_Juridico,
+			siguienteRole: model.Gestor,
+		},
+	},
+}
+
+// Función para obtener el estado y el siguiente rol después de la aprobación
+func ObtenerEstadoYSiguienteRol(role model.Role, aprobo bool) (flujoRoles, error) {
+	if transiciones, ok := flujo[role]; ok {
+		if estadoSiguiente, ok := transiciones[aprobo]; ok {
+			return estadoSiguiente, nil
+		}
+	}
+
+	return flujoRoles{}, errors.New("Error de role para cambiar estado")
 }
 
 func GuardarConvenio(convenio *model.Convenio) (*model.Convenio, error) {
@@ -195,7 +264,7 @@ func FirmarConvenio(id string, file multipart.File, header *multipart.FileHeader
 		return err
 	}
 
-	return sendEmail(convenioRespo, "secretaria")
+	return sendEmail(convenioRespo, model.Secretaria.String())
 
 }
 
@@ -203,7 +272,7 @@ func sendEmail(convenioRespo *model.Convenio, role string) error {
 
 	idGestor := ""
 
-	if role == "gestor" {
+	if role == model.Gestor.String() {
 		idGestor = "/" + convenioRespo.IdGestorCreador
 	}
 
@@ -234,10 +303,10 @@ func sendEmail(convenioRespo *model.Convenio, role string) error {
 	m.SetHeader("To", usuario.Email)
 
 	switch role {
-	case "secretaria", "director relex", "consejo academico", "vicerectoria", "director juridico":
+	case model.Secretaria.String(), model.Director_Relex.String(), model.Consejo_Academico.String(), model.Vicerectoria.String(), model.Directo_Juridico.String():
 		m.SetHeader("Subject", "Nuevo convenio creado")
 		m.SetBody("text/html", "Hola se informa que se ha creado el convenio con nombre <b>"+convenioRespo.NombreConvenio+"</b> y id <b>"+convenioRespo.ID.Hex()+"</b><br>Por favor validar desde el portal.")
-	case "gestor":
+	case model.Gestor.String():
 		m.SetHeader("Subject", "Convenio rechazado")
 		m.SetBody("text/html", "Hola se informa que se ha rechazado el convenio con nombre <b>"+convenioRespo.NombreConvenio+"</b> y id <b>"+convenioRespo.ID.Hex()+"</b><br>Por favor validar desde el portal.")
 	default:
@@ -267,52 +336,27 @@ func CambiarEstadoConvenio(id string, cambio model.CambiarEstadoConvenio, role s
 		return errors.New("Error No se puede cambiar el estado ya que se encuentra en estado " + string(convenioRespo.Estado))
 	}
 
-	if cambio.CambioEstado {
-		switch role {
-		case "secretaria":
-			convenioRespo.Estado = model.Aprobado_Secretaria
-			sendEmail(convenioRespo, "director relex")
-		case "director relex":
-			convenioRespo.Estado = model.Aprobado_Director_Relex
-			sendEmail(convenioRespo, "consejo academico")
-		case "consejo academico":
+	if convenioRespo.Caracterizacion == "Investigacion" && role == model.Consejo_Academico.String() {
+		role = role + " " + "investigacion"
+	}
 
-			if convenioRespo.Caracterizacion == "Investigacion" {
-				convenioRespo.Estado = model.Aprobado_Consejo_Academico_Inv
-				sendEmail(convenioRespo, "vicerectoria")
-			} else {
-				convenioRespo.Estado = model.Aprobado_Consejo_Academico
-				sendEmail(convenioRespo, "director juridico")
-			}
-		case "vicerectoria":
-			convenioRespo.Estado = model.Aprobado_Vicerectoria
-			sendEmail(convenioRespo, "secretaria")
-		case "director juridico":
-			convenioRespo.Estado = model.Aprobado_Director_Juridico
-			sendEmail(convenioRespo, "rectoria")
+	flujoRole, err := ObtenerEstadoYSiguienteRol(model.Role(role), cambio.CambioEstado)
 
-		default:
-			return errors.New("Error de role para cambiar estado")
-		}
-	} else {
-		switch role {
-		case "secretaria":
-			convenioRespo.Estado = model.Rechazado_Secretaria
-		case "director relex":
-			convenioRespo.Estado = model.Rechazado_Director_Relex
-		case "consejo academico":
-			convenioRespo.Estado = model.Rechazado_Consejo_Academico
-		default:
-			return errors.New("Error de role para cambiar estado")
-		}
+	if err != nil {
+		return err
+	}
+
+	if !cambio.CambioEstado {
 
 		if len(cambio.Observacion) < 1 {
 			return errors.New("Observacion no válida")
 		}
 
 		convenioRespo.Observaciones = cambio.Observacion
-		sendEmail(convenioRespo, "gestor")
 	}
+
+	convenioRespo.Estado = flujoRole.estado
+	sendEmail(convenioRespo, string(flujoRole.siguienteRole))
 
 	if err := ActualizarConvenio(convenioRespo); err != nil {
 		fmt.Println(err)
