@@ -31,13 +31,40 @@ type flujoRoles struct {
 	siguienteRole model.Role
 }
 
+type filtroConvenio struct {
+	filtro bool
+	estado model.EstadoConvenio
+}
+
+var filtroMacro = map[model.Role]filtroConvenio{
+	model.Directo_Juridico: {
+		filtro: false,
+		estado: model.Aprobado_Director_Relex,
+	},
+	model.Consejo_Academico: {
+		filtro: true,
+		estado: model.Aprobado_Director_Relex,
+	},
+}
+
+var filtroInvestigacion = map[model.Role]filtroConvenio{
+	model.Directo_Juridico: {
+		filtro: false,
+		estado: model.Aprobado_Consejo_Academico,
+	},
+	model.Vicerectoria: {
+		filtro: true,
+		estado: model.Aprobado_Consejo_Academico,
+	},
+}
+
 // manejo los permisos
 var permisos = map[model.Role][]model.EstadoConvenio{
 	model.Secretaria:        {model.Firmado, model.Aprobado_Rectoria},
 	model.Director_Relex:    {model.Aprobado_Secretaria},
 	model.Consejo_Academico: {model.Aprobado_Director_Relex},
-	model.Vicerectoria:      {model.Aprobado_Consejo_Academico_Inv},
-	model.Directo_Juridico:  {model.Aprobado_Vicerectoria, model.Aprobado_Director_Relex},
+	model.Vicerectoria:      {model.Aprobado_Consejo_Academico},
+	model.Directo_Juridico:  {model.Aprobado_Vicerectoria, model.Aprobado_Director_Relex, model.Aprobado_Consejo_Academico},
 	model.Rectoria:          {model.Aprobado_Director_Juridico},
 }
 
@@ -159,26 +186,84 @@ func GuardarConvenio(convenio *model.Convenio) (*model.Convenio, error) {
 	return convenio, nil
 }
 
-func GetConvenios(role string, idGestor string) ([]model.Convenio, error) {
+func GetConvenios(roleUser string, idGestor string) ([]model.Convenio, error) {
 
-	var convenioModel []model.Convenio
-
-	if role != model.Gestor.String() {
+	if roleUser != model.Gestor.String() {
 		idGestor = ""
 	}
 
-	entityList, err := repository.GetConvenios(idGestor, permisos[model.Role(role)])
+	entityList, err := repository.GetConvenios(idGestor, permisos[model.Role(roleUser)])
 
 	if err != nil {
 		return nil, err
 	}
+
+	var convenioModel []model.Convenio
 
 	if err := dto.Map(&convenioModel, entityList); err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
 
+	filtroMacro, okMacro := filtroMacro[model.Role(roleUser)]
+	var convenioModelFiltrado []model.Convenio
+
+	for _, convenio := range convenioModel {
+		convenioModelFiltrado = append(convenioModelFiltrado, convenio)
+	}
+
+	if okMacro {
+		convenioModelFiltrado = filtrarConvenioMacro(filtroMacro, convenioModelFiltrado)
+		if roleUser != model.Directo_Juridico.String() {
+			return convenioModelFiltrado, nil
+		}
+	}
+
+	filtroInvestigacion, okInv := filtroInvestigacion[model.Role(roleUser)]
+
+	if okInv {
+		convenioModelFiltrado = filtrarConvenioInvestigacion(filtroInvestigacion, convenioModelFiltrado)
+		return convenioModelFiltrado, nil
+	}
+
 	return convenioModel, nil
+
+}
+
+func filtrarConvenioMacro(filtroMacro filtroConvenio, convenioModel []model.Convenio) []model.Convenio {
+	var convenioModelFiltrado []model.Convenio
+
+	for _, convenio := range convenioModel {
+
+		if convenio.Estado != filtroMacro.estado {
+			convenioModelFiltrado = append(convenioModelFiltrado, convenio)
+		}
+
+		if convenio.Estado == filtroMacro.estado && ((filtroMacro.filtro && convenio.TipologiaConvenio == "Marco") ||
+			(!filtroMacro.filtro && convenio.TipologiaConvenio != "Marco")) {
+			convenioModelFiltrado = append(convenioModelFiltrado, convenio)
+		}
+
+	}
+	return convenioModelFiltrado
+}
+
+func filtrarConvenioInvestigacion(filtroInv filtroConvenio, convenioModel []model.Convenio) []model.Convenio {
+	var convenioModelFiltrado []model.Convenio
+
+	for _, convenio := range convenioModel {
+
+		if convenio.Estado != filtroInv.estado {
+			convenioModelFiltrado = append(convenioModelFiltrado, convenio)
+		}
+
+		if convenio.Estado == filtroInv.estado && ((filtroInv.filtro && convenio.Caracterizacion == "Investigacion") ||
+			(!filtroInv.filtro && convenio.Caracterizacion != "Investigacion")) {
+			convenioModelFiltrado = append(convenioModelFiltrado, convenio)
+		}
+
+	}
+	return convenioModelFiltrado
 }
 
 func GetConvenio(id string) (*model.Convenio, error) {
