@@ -90,7 +90,7 @@ var flujo = map[model.Role]map[bool]flujoRoles{
 			siguienteRole: model.Gestor,
 		},
 	},
-	model.Director_Relex_Marco: {
+	model.Director_Relex_Macro: {
 		true: flujoRoles{
 			estado:        model.Aprobado_Director_Relex,
 			siguienteRole: model.Consejo_Academico,
@@ -123,7 +123,7 @@ var flujo = map[model.Role]map[bool]flujoRoles{
 	model.Vicerectoria: {
 		true: flujoRoles{
 			estado:        model.Aprobado_Vicerectoria,
-			siguienteRole: model.Secretaria,
+			siguienteRole: model.Directo_Juridico,
 		},
 		false: flujoRoles{
 			estado:        model.Rechazado_Vicerectoria,
@@ -239,8 +239,8 @@ func filtrarConvenioMacro(filtroMacro filtroConvenio, convenioModel []model.Conv
 			convenioModelFiltrado = append(convenioModelFiltrado, convenio)
 		}
 
-		if convenio.Estado == filtroMacro.estado && ((filtroMacro.filtro && convenio.TipologiaConvenio == "Marco") ||
-			(!filtroMacro.filtro && convenio.TipologiaConvenio != "Marco")) {
+		if convenio.Estado == filtroMacro.estado && ((filtroMacro.filtro && convenio.TipologiaConvenio == "Macro") ||
+			(!filtroMacro.filtro && convenio.TipologiaConvenio != "Macro")) {
 			convenioModelFiltrado = append(convenioModelFiltrado, convenio)
 		}
 
@@ -452,7 +452,7 @@ func CambiarEstadoConvenio(id string, cambio model.CambiarEstadoConvenio, role s
 		return err
 	}
 
-	if convenioRespo.TipologiaConvenio == "Marco" && convenioRespo.Estado == model.Rechazado_Consejo_Academico {
+	if convenioRespo.TipologiaConvenio == "Macro" && convenioRespo.Estado == model.Rechazado_Consejo_Academico {
 		return errors.New("Error No se puede cambiar el estado ya que se encuentra en estado " + string(convenioRespo.Estado))
 	}
 
@@ -460,8 +460,8 @@ func CambiarEstadoConvenio(id string, cambio model.CambiarEstadoConvenio, role s
 		role = role + " " + "investigacion"
 	}
 
-	if convenioRespo.TipologiaConvenio == "Marco" && role == model.Director_Relex.String() {
-		role = role + " " + "marco"
+	if convenioRespo.TipologiaConvenio == "Macro" && role == model.Director_Relex.String() {
+		role = role + " " + "macro"
 	}
 
 	flujoRole, err := ObtenerEstadoYSiguienteRol(model.Role(role), cambio.CambioEstado)

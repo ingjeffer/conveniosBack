@@ -14,7 +14,7 @@ const (
 	Director_Relex                  Role = "director relex"
 	Consejo_Academico               Role = "consejo academico"
 	Consejo_Academico_Investigacion Role = "consejo academico investigacion"
-	Director_Relex_Marco            Role = "director relex marco"
+	Director_Relex_Macro            Role = "director relex macro"
 )
 
 func (r Role) String() string {
