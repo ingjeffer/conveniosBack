@@ -24,6 +24,6 @@ func InitRoute() *chi.Mux {
 	routes.Put("/api/usuario", usuarioController.ActualizarUsuario)
 	routes.Get("/api/usuario/correo/{id}", usuarioController.ListarCorreo)
 	routes.Get("/api/usuario/correo/gestor/{id}", usuarioController.ListarCorreoGestor)
-	routes.Post("/api/usuario", usuarioController.ListarUsariosPorId)
+	routes.Post("/api/usuario/id", usuarioController.ListarUsariosPorId)
 	return routes
 }

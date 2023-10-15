@@ -315,7 +315,7 @@ func GenerarPDF(id string) ([]byte, error) {
 	}
 
 	// Realizar la solicitud POST
-	resp, err := http.Post("http://localhost:8081/api/usuario", "application/json", bytes.NewBuffer(requestBody))
+	resp, err := http.Post("http://localhost:8081/api/usuario/id", "application/json", bytes.NewBuffer(requestBody))
 	if err != nil {
 		return nil, errors.New("Error al realizar la solicitud POST:")
 	}
@@ -331,7 +331,6 @@ func GenerarPDF(id string) ([]byte, error) {
 
 	json.Unmarshal(responseBody, &firmaInfo)
 
-	fmt.Println(1)
 	var pdf = model.ConvenioPDF{
 		NumeroConvenio: id,
 		Convenio:       *convenioRespo,
