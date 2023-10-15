@@ -304,9 +304,38 @@ func GenerarPDF(id string) ([]byte, error) {
 		return nil, err
 	}
 
+	type Datos struct {
+		Users []string `json:"users"`
+	}
+
+	requestBody, err := json.Marshal(&Datos{Users: convenioRespo.HistorialFirma})
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Realizar la solicitud POST
+	resp, err := http.Post("http://localhost:8081/api/usuario", "application/json", bytes.NewBuffer(requestBody))
+	if err != nil {
+		return nil, errors.New("Error al realizar la solicitud POST:")
+	}
+	defer resp.Body.Close()
+
+	responseBody, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		return nil, errors.New("Error al realizar la solicitud POST")
+	}
+
+	var firmaInfo []model.FirmaInfo
+
+	json.Unmarshal(responseBody, &firmaInfo)
+
+	fmt.Println(1)
 	var pdf = model.ConvenioPDF{
 		NumeroConvenio: id,
 		Convenio:       *convenioRespo,
+		FirmaInfo:      firmaInfo,
 	}
 
 	var templ *template.Template

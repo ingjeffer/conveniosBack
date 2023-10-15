@@ -11,12 +11,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type IUsuarioService interface {
-	ListarUsuarios() ([]model.Usuario, error)
-	CrearUsuario(user *model.UsuarioCreate) (*model.UsuarioCreate, error)
-	EliminarUsuario(id string) error
-}
-
 func ListarUsuarios() ([]model.Usuario, error) {
 
 	var usuarioModel []model.Usuario
@@ -24,7 +18,24 @@ func ListarUsuarios() ([]model.Usuario, error) {
 	err := dto.Map(&usuarioModel, usuarios)
 
 	if err != nil {
-		fmt.Errorf(err.Error())
+		return nil, err
+	}
+
+	return usuarioModel, nil
+}
+
+func ListarUsuariosPorId(ids []string) ([]model.Usuario, error) {
+
+	var usuarioModel []model.Usuario
+	usuarios, err := repository.ListarUsuariosPorIDs(ids)
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = dto.Map(&usuarioModel, usuarios)
+
+	if err != nil {
 		return nil, err
 	}
 
@@ -36,7 +47,6 @@ func CrearUsuario(user *model.UsuarioCreate) (*model.UsuarioCreate, error) {
 	var entidad entidades.Usuario
 
 	if err := dto.Map(&entidad, user); err != nil {
-		fmt.Println(err.Error())
 		return nil, err
 	}
 
@@ -67,7 +77,6 @@ func ActualizarUsuario(user *model.UsuarioCreate) (*model.UsuarioCreate, error) 
 
 	var entidad entidades.Usuario
 	if err := dto.Map(&entidad, user); err != nil {
-		fmt.Println(err.Error())
 		return nil, err
 	}
 
@@ -83,7 +92,6 @@ func ActualizarUsuario(user *model.UsuarioCreate) (*model.UsuarioCreate, error) 
 	err = dto.Map(&responseUser, resp)
 
 	if err != nil {
-		fmt.Println(err.Error())
 		return nil, err
 	}
 

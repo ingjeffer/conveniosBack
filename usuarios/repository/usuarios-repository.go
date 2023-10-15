@@ -16,21 +16,23 @@ func (user usuarioError) Error() string {
 	return user.msg
 }
 
-type IUsuarioRepository interface {
-	ListarUsuario() []entidades.Roles
-	CrearUsuario(usuario *entidades.Usuario) (*entidades.Usuario, error)
-	EliminarUsuario(id string) error
-	ActualizarUsuario(usuario *entidades.Usuario) (*entidades.Usuario, error)
-	GetByEmail(email string) (*entidades.Usuario, error)
-	GetEmailByRole(role string) (*entidades.Usuario, error)
-}
-
 func ListarUsuario() []entidades.Usuario {
 	var usuarios []entidades.Usuario
 	configuration.Instance.Model(&entidades.Usuario{}).Preload("Roles").Find(&usuarios)
 	return usuarios
 }
 
+func ListarUsuariosPorIDs(userIDs []string) ([]entidades.Usuario, error) {
+	var usuarios []entidades.Usuario
+	result := configuration.Instance.Model(&entidades.Usuario{}).
+		Preload("Roles").
+		Where("id IN (?)", userIDs).
+		Find(&usuarios)
+	if result.Error != nil {
+		return usuarios, result.Error
+	}
+	return usuarios, nil
+}
 func CrearUsuario(usuario *entidades.Usuario) (*entidades.Usuario, error) {
 
 	result := configuration.Instance.Create(&usuario)

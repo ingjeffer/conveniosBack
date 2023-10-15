@@ -13,6 +13,31 @@ import (
 type UsuarioController struct {
 }
 
+func (controller *UsuarioController) ListarUsariosPorId(w http.ResponseWriter, r *http.Request) {
+
+	type Datos struct {
+		Users []string `json:"users"`
+	}
+
+	var data Datos
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&data); err != nil {
+		http.Error(w, "Error al decodificar el JSON del cuerpo de la solicitud", http.StatusBadRequest)
+		return
+	}
+
+	usuarios, err := service.ListarUsuariosPorId(data.Users)
+
+	if err != nil {
+		http.Error(w, "Error interno", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(usuarios)
+}
+
 func (controller *UsuarioController) ListarUsarios(w http.ResponseWriter, r *http.Request) {
 
 	usuarios, err := service.ListarUsuarios()

@@ -7,6 +7,7 @@ type Usuario struct {
 	TipoId    string `json:"tipoId,omitempty"`
 	Email     string `json:"email,omitempty"`
 	Password  string `json:"password,omitempty"`
+	Firma     string `json:"firma,omitempty"`
 	Roles     *Roles `json:"rol,omitempty"`
 }
 
