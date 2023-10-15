@@ -443,7 +443,7 @@ func sendEmail(convenioRespo *model.Convenio, role string) error {
 	return nil
 }
 
-func CambiarEstadoConvenio(id string, cambio model.CambiarEstadoConvenio, role string) error {
+func CambiarEstadoConvenio(id string, cambio model.CambiarEstadoConvenio, role string, idAprueba string) error {
 
 	convenioRespo, err := GetConvenio(id)
 
@@ -477,6 +477,11 @@ func CambiarEstadoConvenio(id string, cambio model.CambiarEstadoConvenio, role s
 		}
 
 		convenioRespo.Observaciones = cambio.Observacion
+		convenioRespo.HistorialFirma = []string{convenioRespo.IdGestorCreador}
+	}
+
+	if cambio.CambioEstado {
+		convenioRespo.HistorialFirma = append(convenioRespo.HistorialFirma, idAprueba)
 	}
 
 	convenioRespo.Estado = flujoRole.estado

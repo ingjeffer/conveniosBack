@@ -20,6 +20,7 @@ type Convenio struct {
 	Observaciones     string             `json:"observaciones,omitempty"`
 	FirmaUrl          string             `json:"-"`
 	IdGestorCreador   string             `json:"-"`
+	HistorialFirma    []string           `json:"-"`
 }
 
 type InfoGestor struct {

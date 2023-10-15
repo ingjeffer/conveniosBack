@@ -2,8 +2,9 @@ package entidades
 
 import (
 	"convenios/model"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Convenio struct {
@@ -20,6 +21,7 @@ type Convenio struct {
 	FirmaUrl          string               `bson:"firmaUrl,omitempty" json:"firmaUrl"`
 	Observaciones     string               `bson:"observaciones,omitempty" json:"observaciones"`
 	IdGestorCreador   string               `bson:"idGestorCreador,omitempty" json:"idGestorCreador"`
+	HistorialFirma    []string             `bson:"historialFirma,omitempty" json:"historialFirma"`
 }
 
 type InfoGestor struct {
