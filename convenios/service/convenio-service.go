@@ -480,6 +480,15 @@ func CambiarEstadoConvenio(id string, cambio model.CambiarEstadoConvenio, role s
 		return err
 	}
 
+	if convenioRespo.Estado == model.Aprobado_Rectoria && role == string(model.Secretaria) {
+		convenioRespo.Estado = model.Convenio_Aprobado
+		if err := ActualizarConvenio(convenioRespo); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
 	if convenioRespo.TipologiaConvenio == "Macro" && convenioRespo.Estado == model.Rechazado_Consejo_Academico {
 		return errors.New("Error No se puede cambiar el estado ya que se encuentra en estado " + string(convenioRespo.Estado))
 	}
@@ -516,7 +525,6 @@ func CambiarEstadoConvenio(id string, cambio model.CambiarEstadoConvenio, role s
 	sendEmail(convenioRespo, string(flujoRole.siguienteRole))
 
 	if err := ActualizarConvenio(convenioRespo); err != nil {
-		fmt.Println(err)
 		return err
 	}
 

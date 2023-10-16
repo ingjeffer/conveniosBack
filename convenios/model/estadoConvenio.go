@@ -19,4 +19,5 @@ const (
 	Aprobado_Director_Relex_Macro  EstadoConvenio = "APROBADO_DIRECTOR_RELEX"
 	Aprobado_Rectoria              EstadoConvenio = "APROBADO_RECTORIA"
 	Rechazado_Rectoria             EstadoConvenio = "RECHAZADO_RECTORIA"
+	Convenio_Aprobado              EstadoConvenio = "APROBADO"
 )
