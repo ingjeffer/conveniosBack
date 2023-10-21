@@ -80,9 +80,19 @@ func ActualizarUsuario(user *model.UsuarioCreate) (*model.UsuarioCreate, error) 
 		return nil, err
 	}
 
-	encryptPass(&entidad)
+	resp, err := repository.GetUserById(user.Id)
 
-	resp, err := repository.ActualizarUsuario(&entidad)
+	if err != nil {
+		return nil, err
+	}
+
+	if user.Password == resp.Password {
+		entidad.Password = resp.Password
+	} else {
+		encryptPass(&entidad)
+	}
+
+	resp, err = repository.ActualizarUsuario(&entidad)
 
 	if err != nil {
 		return nil, err
@@ -142,9 +152,9 @@ func ListarCorreo(role string) (*model.Usuario, error) {
 	}, nil
 }
 
-func ListarCorreoGestor(role string) (*model.Usuario, error) {
+func ListarCorreoGestor(id string) (*model.Usuario, error) {
 
-	resp, err := repository.GetUserById(role)
+	resp, err := repository.GetUserById(id)
 
 	if err != nil {
 		return nil, err

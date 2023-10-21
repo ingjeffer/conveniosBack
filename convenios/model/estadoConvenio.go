@@ -3,7 +3,7 @@ package model
 type EstadoConvenio string
 
 const (
-	Creado                         EstadoConvenio = "CREADO"
+	Creado                         EstadoConvenio = "CREADO_GESTOR"
 	Firmado                        EstadoConvenio = "FIRMADO"
 	Aprobado_Secretaria            EstadoConvenio = "APROBADO_SECRETARIA"
 	Rechazado_Secretaria           EstadoConvenio = "RECHAZADO_SECRETARIA"

@@ -10,16 +10,11 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
-	"io"
 	"io/ioutil"
-	"mime/multipart"
 	"net/http"
-	"os"
-	"strings"
 
 	"github.com/SebastiaanKlippert/go-wkhtmltopdf"
 	"github.com/dranikpg/dto-mapper"
-	"github.com/yookoala/realpath"
 	gomail "gopkg.in/mail.v2"
 )
 
@@ -60,7 +55,7 @@ var filtroInvestigacion = map[model.Role]filtroConvenio{
 
 // manejo los permisos
 var permisos = map[model.Role][]model.EstadoConvenio{
-	model.Secretaria:        {model.Firmado, model.Aprobado_Rectoria},
+	model.Secretaria:        {model.Creado, model.Aprobado_Rectoria},
 	model.Director_Relex:    {model.Aprobado_Secretaria},
 	model.Consejo_Academico: {model.Aprobado_Director_Relex},
 	model.Vicerectoria:      {model.Aprobado_Consejo_Academico},
@@ -377,42 +372,6 @@ func GenerarPDF(id string) ([]byte, error) {
 	}
 
 	return pdfg.Bytes(), nil
-
-}
-
-func FirmarConvenio(id string, file multipart.File, header *multipart.FileHeader) error {
-
-	convenioRespo, err := GetConvenio(id)
-
-	if err != nil {
-		fmt.Println(err.Error())
-		return err
-	}
-	archivo := "upload/firma/" + id + "." + strings.Split(header.Filename, ".")[1]
-	f, err := os.OpenFile(archivo, os.O_WRONLY|os.O_CREATE, 0666)
-	myRealpath, err := realpath.Realpath(archivo)
-	fmt.Println(myRealpath)
-	if err != nil {
-		fmt.Println(err.Error())
-		return err
-	}
-
-	_, err = io.Copy(f, file)
-
-	if err != nil {
-		fmt.Println(err.Error())
-		return err
-	}
-
-	convenioRespo.FirmaUrl = myRealpath
-	convenioRespo.Estado = model.Firmado
-
-	if err := ActualizarConvenio(convenioRespo); err != nil {
-		fmt.Println(err)
-		return err
-	}
-
-	return sendEmail(convenioRespo, model.Secretaria.String())
 
 }
 
